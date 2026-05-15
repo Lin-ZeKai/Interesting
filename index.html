@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>健身房签到 | 全屏图片可滚动</title>
+  <title>签到成功</title>
   <style>
     * {
       margin: 0;
@@ -147,12 +147,13 @@
     </div>
   </div>
 
-  <div class="hint" id="hintTip">✨ 轻触图片 隐藏/显示 导航栏 | 可上下滑动看完整图片</div>
+  
 
   <script>
     (function() {
       const navbar = document.getElementById('navbar');
-      const hint = document.getElementById('hintTip');
+      
+
 
       // 1. 点击页面任意位置（排除导航栏内部）切换导航栏显示/隐藏
       document.addEventListener('click', function(e) {
@@ -207,14 +208,7 @@
         });
       }
 
-      // 3. 底部提示自动淡出
-      setTimeout(() => {
-        hint.style.opacity = '0';
-        setTimeout(() => hint.style.display = 'none', 500);
-      }, 4000);
-
-      // 4. 控制台提醒
-      console.log('页面已加载：可上下滚动查看完整图片，点击图片切换导航栏');
+     
     })();
   </script>
 </body>
