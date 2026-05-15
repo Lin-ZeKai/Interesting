@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>健身房签到 | 全屏图片</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>健身房签到 | 全屏图片可滚动</title>
   <style>
     * {
       margin: 0;
@@ -12,40 +12,35 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+    body {
+      background-color: #000;          /* 纯黑背景，图片边缘不留白 */
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
     }
 
-    /* 全屏背景图片 —— 使用您上传的 permission.png，原图内容完整保留 */
-    .fullscreen-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* 图片容器：宽度100%，高度自适应，保证完整显示原图内容 */
+    .scrollable-image {
+      display: block;
       width: 100%;
-      height: 100%;
-      z-index: 1;
-      background-image: url('permission.png');
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
+      height: auto;
+      user-select: none;
+      pointer-events: auto;            /* 保证点击图片区域能触发事件 */
     }
 
-    /* 顶部导航栏（半透明毛玻璃，可隐藏） */
+    /* ----- 顶部导航栏（半透明毛玻璃，可点击隐藏/显示）----- */
     .navbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 20;
-      background: rgba(20, 20, 30, 0.8);
+      background: rgba(20, 20, 30, 0.85);
       backdrop-filter: blur(15px);
       transition: transform 0.3s ease;
       padding-top: env(safe-area-inset-top);
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
+    /* 隐藏导航栏 */
     .navbar.hide {
       transform: translateY(-100%);
     }
@@ -100,6 +95,7 @@
       font-size: 18px;
       font-weight: 600;
       color: white;
+      letter-spacing: 0.5px;
     }
     .sub-domain {
       font-size: 11px;
@@ -107,15 +103,16 @@
       margin-top: 2px;
     }
 
+    /* 底部提示（3秒后自动消失） */
     .hint {
       position: fixed;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 25;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.65);
       backdrop-filter: blur(8px);
-      padding: 6px 16px;
+      padding: 6px 18px;
       border-radius: 40px;
       color: white;
       font-size: 12px;
@@ -127,8 +124,10 @@
 </head>
 <body>
 
-  <div class="fullscreen-bg"></div>
+  <!-- 图片：使用您上传的 permission.png，宽度100%自适应，可上下滚动查看完整内容 -->
+  <img class="scrollable-image" src="permission.png" alt="健身房入场资格">
 
+  <!-- 自定义导航栏（点击屏幕可隐藏/显示） -->
   <div class="navbar" id="navbar">
     <div class="nav-container">
       <div class="nav-left">
@@ -148,20 +147,21 @@
     </div>
   </div>
 
-  <div class="hint" id="hintTip">✨ 轻触图片区域 隐藏/显示 导航栏</div>
+  <div class="hint" id="hintTip">✨ 轻触图片 隐藏/显示 导航栏 | 可上下滑动看完整图片</div>
 
   <script>
     (function() {
       const navbar = document.getElementById('navbar');
       const hint = document.getElementById('hintTip');
 
-      // 全局点击：除导航栏内部外，切换导航栏隐藏/显示
+      // 1. 点击页面任意位置（排除导航栏内部）切换导航栏显示/隐藏
       document.addEventListener('click', function(e) {
+        // 如果点击的元素在导航栏内部，不切换
         if (e.target.closest('.navbar')) return;
-        navbar.classList.toggle('hide');
+        if (navbar) navbar.classList.toggle('hide');
       });
 
-      // 导航栏内按钮的独立交互（仅示意，不触发全局切换）
+      // 2. 导航栏内按钮的独立交互（仅示例，不触发全局隐藏）
       const backBtn = document.getElementById('backBtn');
       const menuIcon = document.getElementById('menuIcon');
 
@@ -170,7 +170,23 @@
         if (!toast) {
           toast = document.createElement('div');
           toast.id = 'dynamicToast';
-          toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); color:white; padding:6px 18px; border-radius:40px; font-size:13px; z-index:999; white-space:nowrap; pointer-events:none; opacity:0; transition:0.2s;`;
+          toast.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            z-index: 999;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            opacity: 0;
+          `;
           document.body.appendChild(toast);
         }
         toast.textContent = msg;
@@ -178,19 +194,27 @@
         setTimeout(() => toast.style.opacity = '0', 1500);
       }
 
-      backBtn?.addEventListener('click', (e) => { e.stopPropagation(); showToast('返回按钮 (可自定义)'); });
-      menuIcon?.addEventListener('click', (e) => { e.stopPropagation(); showToast('菜单按钮 (可扩展)'); });
+      if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('返回按钮 (可自定义跳转)');
+        });
+      }
+      if (menuIcon) {
+        menuIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('菜单按钮 (可扩展功能)');
+        });
+      }
 
-      // 提示3秒后消失
+      // 3. 底部提示自动淡出
       setTimeout(() => {
         hint.style.opacity = '0';
         setTimeout(() => hint.style.display = 'none', 500);
-      }, 3000);
+      }, 4000);
 
-      // 禁止滚动
-      document.body.addEventListener('touchmove', (e) => {
-        if (e.target === document.body || e.target === document.documentElement) e.preventDefault();
-      }, { passive: false });
+      // 4. 控制台提醒
+      console.log('页面已加载：可上下滚动查看完整图片，点击图片切换导航栏');
     })();
   </script>
 </body>
