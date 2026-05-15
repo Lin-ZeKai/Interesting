@@ -3,35 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>全屏图片</title>
+  <title>健身房签到 | 全屏图片</title>
   <style>
-    /* 去掉所有默认边距，强制全屏 */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden; /* 禁止滚动 */
+      overflow: hidden;
     }
 
-    /* 图片容器铺满窗口 */
-    .fullscreen-image {
+    /* 全屏背景图片 —— 使用您上传的 permission.png，原图内容完整保留 */
+    .fullscreen-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover; /* 图片等比缩放裁剪，完全覆盖无变形 */
-      display: block;
+      z-index: 1;
+      background-image: url('permission.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+
+    /* 顶部导航栏（半透明毛玻璃，可隐藏） */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: rgba(20, 20, 30, 0.8);
+      backdrop-filter: blur(15px);
+      transition: transform 0.3s ease;
+      padding-top: env(safe-area-inset-top);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    }
+
+    .navbar.hide {
+      transform: translateY(-100%);
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+    }
+
+    .nav-left, .nav-right {
+      flex: 1;
+    }
+    .nav-left { text-align: left; }
+    .nav-right { text-align: right; }
+
+    .back-btn, .menu-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      font-size: 22px;
+      font-weight: 500;
+      color: white;
+    }
+    .menu-icon {
+      flex-direction: column;
+      width: 22px;
+      height: 18px;
+    }
+    .menu-icon span {
+      height: 2px;
+      background: white;
+      border-radius: 2px;
+    }
+    .menu-icon span:nth-child(2) {
+      margin: 4px 0;
+    }
+
+    .nav-center {
+      flex: 2;
+      text-align: center;
+    }
+    .main-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
+    .sub-domain {
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 2px;
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 40px;
+      color: white;
+      font-size: 12px;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 0.5s;
     }
   </style>
 </head>
 <body>
-  <!-- 方法一：用 img 标签 -->
-  <img class="fullscreen-image" src="permission.png" alt="全屏展示图">
-  
-  <!-- 方法二（备选）：用背景图，也可以换成下面这种写法 -->
-  <!-- <div style="width:100%;height:100%;background:url('你的图片链接') center/cover no-repeat;"></div> -->
+
+  <div class="fullscreen-bg"></div>
+
+  <div class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <div class="back-btn" id="backBtn">〈</div>
+      </div>
+      <div class="nav-center">
+        <div class="main-title">签到成功</div>
+        <div class="sub-domain">www.styd.cn</div>
+      </div>
+      <div class="nav-right">
+        <div class="menu-icon" id="menuIcon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint" id="hintTip">✨ 轻触图片区域 隐藏/显示 导航栏</div>
+
+  <script>
+    (function() {
+      const navbar = document.getElementById('navbar');
+      const hint = document.getElementById('hintTip');
+
+      // 全局点击：除导航栏内部外，切换导航栏隐藏/显示
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.navbar')) return;
+        navbar.classList.toggle('hide');
+      });
+
+      // 导航栏内按钮的独立交互（仅示意，不触发全局切换）
+      const backBtn = document.getElementById('backBtn');
+      const menuIcon = document.getElementById('menuIcon');
+
+      function showToast(msg) {
+        let toast = document.getElementById('dynamicToast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'dynamicToast';
+          toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); color:white; padding:6px 18px; border-radius:40px; font-size:13px; z-index:999; white-space:nowrap; pointer-events:none; opacity:0; transition:0.2s;`;
+          document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 1500);
+      }
+
+      backBtn?.addEventListener('click', (e) => { e.stopPropagation(); showToast('返回按钮 (可自定义)'); });
+      menuIcon?.addEventListener('click', (e) => { e.stopPropagation(); showToast('菜单按钮 (可扩展)'); });
+
+      // 提示3秒后消失
+      setTimeout(() => {
+        hint.style.opacity = '0';
+        setTimeout(() => hint.style.display = 'none', 500);
+      }, 3000);
+
+      // 禁止滚动
+      document.body.addEventListener('touchmove', (e) => {
+        if (e.target === document.body || e.target === document.documentElement) e.preventDefault();
+      }, { passive: false });
+    })();
+  </script>
 </body>
 </html>
